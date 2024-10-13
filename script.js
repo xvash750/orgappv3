@@ -1,51 +1,48 @@
-let nodes = [];
-let idCounter = 1;
+const data = {
+    name: "CEO",
+    children: [
+        { name: "Manager 1", children: [{ name: "Employee 1" }, { name: "Employee 2" }] },
+        { name: "Manager 2", children: [{ name: "Employee 3" }, { name: "Employee 4" }] }
+    ]
+};
 
-function addNode() {
-    const name = prompt("Enter node name:");
-    const manager = prompt("Enter manager name:");
-    
-    const newNode = {
-        id: idCounter++,
-        name: name,
-        manager: manager
-    };
-    
-    nodes.push(newNode);
-    renderNodes();
-}
+const width = 600;
+const height = 400;
 
-function editNode(id) {
-    const node = nodes.find(n => n.id === id);
-    if (node) {
-        const newName = prompt("Enter new name:", node.name);
-        const newManager = prompt("Enter new manager:", node.manager);
-        
-        node.name = newName;
-        node.manager = newManager;
-        renderNodes();
-    }
-}
+const svg = d3.select("#orgChart")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-function deleteNode(id) {
-    nodes = nodes.filter(n => n.id !== id);
-    renderNodes();
-}
+const root = d3.hierarchy(data);
+const treeLayout = d3.tree().size([height, width - 200]);
 
-function renderNodes() {
-    const container = document.getElementById('nodeContainer');
-    container.innerHTML = '';
-    
-    nodes.forEach(node => {
-        const nodeDiv = document.createElement('div');
-        nodeDiv.className = 'node';
-        nodeDiv.innerHTML = `
-            <strong>ID:</strong> ${node.id}<br>
-            <strong>Name:</strong> ${node.name}<br>
-            <strong>Manager:</strong> ${node.manager}<br>
-            <button onclick="editNode(${node.id})">Edit</button>
-            <button onclick="deleteNode(${node.id})">Delete</button>
-        `;
-        container.appendChild(nodeDiv);
-    });
-}
+treeLayout(root);
+
+svg.selectAll(".link")
+    .data(root.links())
+    .enter()
+    .append("line")
+    .attr("class", "link")
+    .attr("x1", d => d.source.y)
+    .attr("y1", d => d.source.x)
+    .attr("x2", d => d.target.y)
+    .attr("y2", d => d.target.x)
+    .attr("stroke", "#ccc");
+
+const nodes = svg.selectAll(".node")
+    .data(root.descendants())
+    .enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+nodes.append("circle")
+    .attr("r", 5)
+    .attr("fill", "#007BFF");
+
+nodes.append("text")
+    .attr("dy", 3)
+    .attr("x", d => d.children ? -8 : 8)
+    .style("text-anchor", d => d.children ? "end" : "start")
+    .text(d => d.data.name);

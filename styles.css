@@ -1,15 +1,13 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
 }
 
-.node {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px;
-    position: relative;
+.node circle {
+    fill: #007BFF;
 }
 
-button {
-    margin-top: 20px;
+.node text {
+    font: 12px sans-serif;
 }
